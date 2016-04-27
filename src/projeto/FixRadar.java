@@ -9,7 +9,7 @@ import robocode.util.Utils;
 public class FixRadar extends AdvancedRobot {
 	
 	public void run(){
-		RobotColors.setCRFColors(this);
+		new RobotColors().setCRFColors(this);
 		//setAdjustGunForRobotTurn(true);
 		setTurnRadarRightRadians(Double.POSITIVE_INFINITY);
 		while (true){

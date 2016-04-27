@@ -9,12 +9,18 @@ public class RobotColors  implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public Color bodyColor, gunColor, radarColor, scanColor, bulletColor;
 	
-	public RobotColors(){};
-	public static void setCRFColors(Robot r){
-		r.setBodyColor(Color.black);
-		r.setGunColor(Color.black);
-		r.setRadarColor(Color.red);
-		r.setScanColor(Color.red);
-		r.setBulletColor(Color.red);
+	public RobotColors(){
+		bodyColor = Color.black;
+		gunColor = Color.black;
+		radarColor = Color.red;
+		scanColor = Color.red;
+		bulletColor = Color.red;
+	};
+	public void setCRFColors(Robot r){
+		r.setBodyColor(bodyColor);
+		r.setGunColor(gunColor);
+		r.setRadarColor(radarColor);
+		r.setScanColor(scanColor);
+		r.setBulletColor(bulletColor);
 	}
 }

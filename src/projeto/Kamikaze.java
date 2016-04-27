@@ -1,24 +1,19 @@
 package projeto;
 
-import robocode.*;
+import robocode.AdvancedRobot;
+import robocode.RobotDeathEvent;
+import robocode.Rules;
+import robocode.ScannedRobotEvent;
 import robocode.util.Utils;
 
-//import java.io.IOException;
+public class Kamikaze extends AdvancedRobot {
 
-public class MlkSarrante extends AdvancedRobot{
 	private double bulletPower = Rules.MAX_BULLET_POWER;
 	private boolean targetAcquired = false;
-	
 	public void run(){
 		new RobotColors().setCRFColors(this);
 		setTurnRadarRight(Double.POSITIVE_INFINITY);
 		execute();
-		
-		setAdjustGunForRobotTurn(true);
-		setAdjustRadarForGunTurn(true);
-		setAdjustRadarForRobotTurn(true);
-		
-		
 		while (true) {
 			if(targetAcquired)
 				ahead(200);	
@@ -31,7 +26,8 @@ public class MlkSarrante extends AdvancedRobot{
 	}
 	
 	public void onScannedRobot(ScannedRobotEvent e) {
-		// Radar code		
+		// Radar code
+		
 		// angulo total do inimigo = agulo do robo + offset do inimigo;
 	    double absBearing = getHeadingRadians() + e.getBearingRadians();
 	    
@@ -49,11 +45,31 @@ public class MlkSarrante extends AdvancedRobot{
 	    
 	    setTurnGunRightRadians(Utils.normalRelativeAngle(linearBearing - getGunHeadingRadians()));
 		setTurnRightRadians(Utils.normalRelativeAngle(linearBearing - getHeadingRadians()));
-	    if(getGunHeat() == 0 && Math.abs(getGunTurnRemaining()) < 2.0 ){
-	    	//energyManagement(e.getDistance(), e.getEnergy());
+	    if(getGunHeat() == 0){
+	    	energyManagement(e.getDistance(), e.getEnergy());
 	    	setFire(bulletPower);
 	    	targetAcquired = true;
 	    }
 		//ahead(e.getDistance());
-	}	
+	}
+	
+	public void energyManagement(double distance, double energy){
+		// ajusta poder do tiro com a distancia
+		if (distance > 250 && distance < 500){
+			bulletPower = (Rules.MIN_BULLET_POWER + Rules.MAX_BULLET_POWER)/2.0;
+		}else if(distance > 500){
+			bulletPower = Rules.MIN_BULLET_POWER;
+		}else{
+			bulletPower = Rules.MAX_BULLET_POWER;
+		}
+		
+		// ajusta poder pra nao atirar mais forte que necessario pra matar
+		if(bulletPower > energy/4.0){
+			bulletPower = energy/4.0;
+		}
+	}
+	
+	public void onRobotDeath(RobotDeathEvent e) {
+		out.println("algo");
+	}
 }

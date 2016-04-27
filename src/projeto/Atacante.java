@@ -6,6 +6,7 @@ import java.awt.Color;
 import robocode.Droid;
 import robocode.MessageEvent;
 import robocode.RobotDeathEvent;
+import robocode.Rules;
 import robocode.TeamRobot;
 import static robocode.util.Utils.normalRelativeAngleDegrees;
 
@@ -26,14 +27,15 @@ public class Atacante extends TeamRobot implements Droid {
 		
 	}
 
+		
 	/**
 	 * onMessageReceived:  What to do when our leader sends a message
 	 */
 	public void onMessageReceived(MessageEvent e) {
 		// Fire at a point
-		out.println("msg recvd: "+e.getMessage());
-		if (e.getMessage() instanceof Point) {
-			Point p = (Point) e.getMessage();
+		//out.println("msg recvd: "+e.getMessage());
+		if (e.getMessage() instanceof Ponto) {
+			Ponto p = (Ponto) e.getMessage();
 			// Calculate x and y to target
 			double dx = p.getX() - this.getX();
 			double dy = p.getY() - this.getY();
@@ -43,21 +45,17 @@ public class Atacante extends TeamRobot implements Droid {
 			// Turn gun to target
 			turnGunRight(normalRelativeAngleDegrees(theta - getGunHeading()));
 			// Fire hard!
-			fire(3);
+			fire(Rules.MAX_BULLET_POWER);
 		} // Set our colors
 		else if (e.getMessage() instanceof RobotColors) {
-			RobotColors c = (RobotColors) e.getMessage();
-
-			setBodyColor(c.bodyColor);
-			setGunColor(c.gunColor);
-			setRadarColor(c.radarColor);
-			setScanColor(c.scanColor);
-			setBulletColor(c.bulletColor);
+			((RobotColors) e.getMessage()).setCRFColors(this);
 		}
 		else if(e.getMessage() instanceof String){
 			leader = (String) e.getMessage();
 		}
 	}
+	
+	
 	public void onRobotDeath(RobotDeathEvent e) {
 		if(e.getName().equals(leader)){
 			setBodyColor(Color.yellow);
