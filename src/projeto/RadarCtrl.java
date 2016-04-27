@@ -8,7 +8,6 @@ public class RadarCtrl {
 	private AdvancedRobot bot;
 	public RadarCtrl(AdvancedRobot r){
 		bot = r;
-		//r.setTurnRadarLeft(360);
 	}
 	
 	public void widthLock(double bearingRadians, double distance){
@@ -17,7 +16,7 @@ public class RadarCtrl {
 		// angulo do inimigo pro radar
 		double radarBearing = Utils.normalRelativeAngle(absBearing - bot.getRadarHeadingRadians());
 		// offset(tamanho do arco envolvendo inimigo), menor entre atan(qtd de pxls entre arco e centro do robo / distancia para o robo) e maximo scan 
-		double extraTurn = Math.min( Math.atan( 36.0 / distance), Rules.RADAR_TURN_RATE_RADIANS );
+		double extraTurn = Math.min( Math.atan( 40.0 / distance), Rules.RADAR_TURN_RATE_RADIANS );
 		// junta tudo
 		radarBearing += Math.signum(radarBearing) * extraTurn;
 

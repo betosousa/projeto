@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import robocode.AdvancedRobot;
 import robocode.Rules;
-import robocode.ScannedRobotEvent;
 import robocode.util.Utils;
 
 public class GFTargeting {
@@ -20,20 +19,21 @@ public class GFTargeting {
 		bot = r;
 	}
 
-	public void aim(ScannedRobotEvent e, Ponto pt, double enemyBearing){
-		double enemyX = pt.getX(), enemyY = pt.getY();
+	public void aim(EnemyData enemy){
+		
+		double enemyBearing = enemy.relativeBearing(bot);
 		
 		// Let's process the waves now:
 		for (int i=0; i < bulletWaves.size(); i++){
 			BulletWave currentWave = bulletWaves.get(i);
-			if (currentWave.checkHit(enemyX, enemyY, bot.getTime())){
+			if (currentWave.checkHit(enemy.x, enemy.y, bot.getTime())){
 				bulletWaves.remove(currentWave);
 				i--;
 			}
 		}
 
-		if (e.getVelocity() != 0){
-			if (Math.sin(e.getHeadingRadians() - enemyBearing) * e.getVelocity() < 0)
+		if (enemy.velocity != 0){
+			if (Math.sin(enemy.heading - enemyBearing) * enemy.velocity < 0)
 				direction = -1;
 			else
 				direction = 1;
@@ -53,13 +53,12 @@ public class GFTargeting {
 		double gunAdjust = Utils.normalRelativeAngle(enemyBearing - bot.getGunHeadingRadians() + angleOffset);
 		bot.setTurnGunRightRadians(gunAdjust);
 
-		if (bot.getGunHeat() == 0 && gunAdjust < Math.atan2(9, e.getDistance()) && bot.setFireBullet(bulletPower) != null) {
+		if (bot.getGunHeat() == 0 && gunAdjust < Math.atan2(9, enemy.relativeDistance(bot)) && bot.setFireBullet(bulletPower) != null) {
 			bulletWaves.add(newWave);
 		}
 
-		//bot.fire( Math.min(100 * Rules.MAX_BULLET_POWER/e.getDistance(), 3.0) );
-
 	}
+	
 	
 	
 }

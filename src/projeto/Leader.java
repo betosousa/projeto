@@ -50,7 +50,7 @@ public class Leader extends TeamRobot {
 				ahead(mvmt.getMovement());
 			//}
 			if(getRadarTurnRemaining() == 0)
-				setTurnRadarRight(100);
+				setTurnRadarRight(1000);
 			//ahead(mvmt.getMovement());
 			execute();
 		}
@@ -73,30 +73,20 @@ public class Leader extends TeamRobot {
 			target = e.getName();
 
 		if (e.getName().equals(target) || !teamPlay) {
-			///////////
-			//	trocar por EnemyData 
-			///////////
 			
-			// Calculate enemy bearing
-			double enemyBearing = this.getHeadingRadians() + e.getBearingRadians();
-			// Calculate enemy's position
-			double enemyX = getX() + e.getDistance() * Math.sin(enemyBearing);
-			double enemyY = getY() + e.getDistance() * Math.cos(enemyBearing);
-			
-			Ponto pt = new Ponto(enemyX, enemyY);
+			EnemyData enemy = new EnemyData(e, this);
 			
 			try {
-				// Send enemy position to teammates
-				broadcastMessage(pt);
+				// Send enemy data to teammates
+				broadcastMessage(enemy);
 			} catch (IOException ex1) {
 				out.println("Unable to send order: ");
 				ex1.printStackTrace(out);
 			}
-			/////////////////
 			
-			mvmt.move(pt);
+			mvmt.move(enemy);
 			radar.widthLock(e.getBearingRadians(), e.getDistance());
-			targeting.aim(e, pt, enemyBearing);
+			targeting.aim(enemy);
 		}
 	}
 	

@@ -14,10 +14,10 @@ public class MovementCtrl {
 		random = new Random();
 	}
 	
-	public void move(Ponto pt){
+	public void move(EnemyData enemy){
 		// Calculate x and y to target
-		double dx = pt.getX() - bot.getX();
-		double dy = pt.getY() - bot.getY();
+		double dx = enemy.x - bot.getX();
+		double dy = enemy.y - bot.getY();
 		// Calculate angle to target
 		double theta = Math.toDegrees(Math.atan2(dx, dy));
 		bot.setTurnRight(Utils.normalRelativeAngleDegrees(theta - bot.getHeading()) + 90 );
@@ -25,7 +25,7 @@ public class MovementCtrl {
 	
 	public double getMovement(){
 		direction = -direction;
-		return random.nextDouble() * movementFactor * direction;
+		return random.nextDouble() * movementFactor * direction;	
 	}
 	
 }
