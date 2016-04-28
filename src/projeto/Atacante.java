@@ -18,6 +18,7 @@ public class Atacante extends TeamRobot implements Droid {
 	
 	MovementCtrl mvmt;
 	GFTargeting targeting;
+	//MinimumRisk minRisk;
 	
 	public void run() {
 		
@@ -27,6 +28,14 @@ public class Atacante extends TeamRobot implements Droid {
 		
 		mvmt = new MovementCtrl(this);
 		targeting = new GFTargeting(this);
+		//minRisk = new MinimumRisk(this);
+		
+		while(true){
+			if(getDistanceRemaining() <= 0.1){
+				//minRisk.move();
+				ahead(mvmt.getMovement());
+			}
+		}
 		
 	}
 
@@ -39,8 +48,9 @@ public class Atacante extends TeamRobot implements Droid {
 		//out.println("msg recvd: "+e.getMessage());
 		if (e.getMessage() instanceof EnemyData) {
 			EnemyData enemy = (EnemyData)e.getMessage();
-			mvmt.move(enemy);
+			mvmt.turnBot(enemy);
 			targeting.aim(enemy);
+			//minRisk.addEnemy(enemy);
 		} // Set our colors
 		else if (e.getMessage() instanceof RobotColors) {
 			((RobotColors) e.getMessage()).setCRFColors(this);
@@ -56,5 +66,6 @@ public class Atacante extends TeamRobot implements Droid {
 			setBodyColor(Color.yellow);
 		}
 	}
+	
 		
 }

@@ -16,7 +16,7 @@ public class RadarCtrl {
 		// angulo do inimigo pro radar
 		double radarBearing = Utils.normalRelativeAngle(absBearing - bot.getRadarHeadingRadians());
 		// offset(tamanho do arco envolvendo inimigo), menor entre atan(qtd de pxls entre arco e centro do robo / distancia para o robo) e maximo scan 
-		double extraTurn = Math.min( Math.atan( 40.0 / distance), Rules.RADAR_TURN_RATE_RADIANS );
+		double extraTurn = Math.min( Math.atan( 20.0 / distance), Rules.RADAR_TURN_RATE_RADIANS );
 		// junta tudo
 		radarBearing += Math.signum(radarBearing) * extraTurn;
 

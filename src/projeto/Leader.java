@@ -18,7 +18,7 @@ public class Leader extends TeamRobot {
 	RadarCtrl radar; 
 	MovementCtrl mvmt;
 	GFTargeting targeting;
-	
+	//MinimumRisk minRisk;
 		
 	boolean teamPlay;
 
@@ -34,9 +34,10 @@ public class Leader extends TeamRobot {
 		radar = new RadarCtrl(this);
 		mvmt = new MovementCtrl(this);
 		targeting = new GFTargeting(this);
+		//minRisk = new MinimumRisk(this);
 		
 		teamPlay = (getTeammates() != null);
-		
+				
 		try {
 			// Send RobotColors object to our entire team
 			broadcastMessage(c);
@@ -46,13 +47,14 @@ public class Leader extends TeamRobot {
 		// Normal behavior
 		while (true) {
 			
-			//if(getTurnRemaining() <= 2){
-				ahead(mvmt.getMovement());
-			//}
 			if(getRadarTurnRemaining() == 0)
 				setTurnRadarRight(1000);
-			//ahead(mvmt.getMovement());
+			
 			execute();
+			if(getDistanceRemaining() <= 0.1){
+				//minRisk.move();
+				ahead(mvmt.getMovement());
+			}
 		}
 	}
 
@@ -61,17 +63,20 @@ public class Leader extends TeamRobot {
 	public void onScannedRobot(ScannedRobotEvent e) {
 		// Don't fire on teammates
 		if (isTeammate(e.getName())) {
+			//minRisk.addTeammate(new EnemyData(e, this));
 			return;
 		}
 
 		if (e.getEnergy() > 150.0 && target == null) {
 			target = e.getName();// lider adversario
 			leader = e.getName();
+			//minRisk.setTarget(new EnemyData(e, this));
 		}
 
-		if (leaderDead && target == null)
+		if (leaderDead && target == null){
 			target = e.getName();
-
+			//minRisk.setTarget(new EnemyData(e, this));
+		}
 		if (e.getName().equals(target) || !teamPlay) {
 			
 			EnemyData enemy = new EnemyData(e, this);
@@ -84,7 +89,7 @@ public class Leader extends TeamRobot {
 				ex1.printStackTrace(out);
 			}
 			
-			mvmt.move(enemy);
+			mvmt.turnBot(enemy);
 			radar.widthLock(e.getBearingRadians(), e.getDistance());
 			targeting.aim(enemy);
 		}
@@ -100,10 +105,7 @@ public class Leader extends TeamRobot {
 		return bulletPower;
 	}
 	
-	public void onHitByBullet(HitByBulletEvent e) {
-		back(10);
-	}
-
+	
 	public void onRobotDeath(RobotDeathEvent e) {
 		if (leaderDead) {
 			if (e.getName().equals(target))

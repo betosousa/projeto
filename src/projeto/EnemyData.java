@@ -7,7 +7,8 @@ import robocode.ScannedRobotEvent;
 
 public class EnemyData implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public double velocity, heading, x, y, bearing;
+	public double velocity, heading, x, y, bearing, energy;
+	private Ponto pt;
 	
 	public EnemyData(ScannedRobotEvent e, AdvancedRobot r){
 		bearing = r.getHeadingRadians() + e.getBearingRadians();
@@ -15,17 +16,19 @@ public class EnemyData implements Serializable {
 		y = r.getY() + e.getDistance() * Math.cos(bearing);
 		velocity = e.getVelocity();
 		heading = e.getHeadingRadians();
+		energy = e.getEnergy();
+		pt = new Ponto(x, y);
 	}
 	
 	public double relativeBearing(AdvancedRobot r){
-		double dx = x - r.getX(), dy = y - r.getY();
-		return (Math.PI/2.0) - Math.atan2(dy, dx);
+		return pt.relativeBearing(new Ponto(r.getX(),r.getY()));
 	}
 	
 	public double relativeDistance(AdvancedRobot r){
-		double dx = x - r.getX(), dy = y - r.getY();
-		return Math.sqrt(dx*dx + dy*dy);	
+		return relativeDistance(new Ponto(r.getX(), r.getY()));
 	}
 	
-	
+	public double relativeDistance(Ponto p){
+		return pt.distance(p);	
+	}
 }

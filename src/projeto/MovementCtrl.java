@@ -7,14 +7,14 @@ import robocode.util.Utils;
 
 public class MovementCtrl {
 	AdvancedRobot bot;
-	double movementFactor = 100, direction = 1;
+	double movementFactor = 300, direction = 1;
 	Random random;
 	public MovementCtrl(AdvancedRobot r){
 		bot = r;
 		random = new Random();
 	}
 	
-	public void move(EnemyData enemy){
+	public void turnBot(EnemyData enemy){
 		// Calculate x and y to target
 		double dx = enemy.x - bot.getX();
 		double dy = enemy.y - bot.getY();
