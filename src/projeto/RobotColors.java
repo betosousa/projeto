@@ -14,7 +14,7 @@ public class RobotColors  implements Serializable {
 		gunColor = Color.black;
 		radarColor = Color.black;
 		scanColor = Color.red;
-		bulletColor = Color.red;
+		bulletColor = Color.white;
 	};
 	public void setCRFColors(Robot r){
 		r.setBodyColor(bodyColor);

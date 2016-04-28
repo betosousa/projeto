@@ -16,7 +16,6 @@ public class Leader extends TeamRobot {
 	private boolean leaderDead = false;
 	
 	RadarCtrl radar; 
-	MovementCtrl mvmt;
 	GFTargeting targeting;
 	MinimumRisk minRisk;
 		
@@ -32,7 +31,6 @@ public class Leader extends TeamRobot {
 		setAdjustRadarForRobotTurn(true);
 		
 		radar = new RadarCtrl(this);
-		mvmt = new MovementCtrl(this);
 		targeting = new GFTargeting(this);
 		minRisk = new MinimumRisk(this);
 		
@@ -53,7 +51,7 @@ public class Leader extends TeamRobot {
 			execute();
 			if(getDistanceRemaining() <= 0.1){
 				minRisk.move();
-				//ahead(mvmt.getMovement());
+				
 			}
 			else{
 				out.println(getDistanceRemaining());
@@ -92,9 +90,9 @@ public class Leader extends TeamRobot {
 				ex1.printStackTrace(out);
 			}
 			
-			mvmt.turnBot(enemy);
 			radar.widthLock(e.getBearingRadians(), e.getDistance());
 			targeting.aim(enemy);
+			minRisk.turnBot(enemy);
 		}
 	}
 	

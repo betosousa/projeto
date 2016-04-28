@@ -16,9 +16,8 @@ public class Atacante extends TeamRobot implements Droid {
 	 * run:  Droid's default behavior
 	 */
 	
-	MovementCtrl mvmt;
 	GFTargeting targeting;
-	//MinimumRisk minRisk;
+	MinimumRisk minRisk;
 	
 	public void run() {
 		
@@ -26,14 +25,12 @@ public class Atacante extends TeamRobot implements Droid {
 		setAdjustRadarForGunTurn(true);
 		setAdjustRadarForRobotTurn(true);
 		
-		mvmt = new MovementCtrl(this);
 		targeting = new GFTargeting(this);
-		//minRisk = new MinimumRisk(this);
+		minRisk = new MinimumRisk(this);
 		
 		while(true){
 			if(getDistanceRemaining() <= 0.1){
-				//minRisk.move();
-				ahead(mvmt.getMovement());
+				minRisk.move();
 			}
 		}
 		
@@ -48,9 +45,9 @@ public class Atacante extends TeamRobot implements Droid {
 		//out.println("msg recvd: "+e.getMessage());
 		if (e.getMessage() instanceof EnemyData) {
 			EnemyData enemy = (EnemyData)e.getMessage();
-			mvmt.turnBot(enemy);
 			targeting.aim(enemy);
-			//minRisk.addEnemy(enemy);
+			minRisk.addEnemy(enemy);
+			minRisk.turnBot(enemy);
 		} // Set our colors
 		else if (e.getMessage() instanceof RobotColors) {
 			((RobotColors) e.getMessage()).setCRFColors(this);
@@ -64,6 +61,7 @@ public class Atacante extends TeamRobot implements Droid {
 	public void onRobotDeath(RobotDeathEvent e) {
 		if(e.getName().equals(leader)){
 			setBodyColor(Color.yellow);
+			minRisk.increaseMovementFactor();
 		}
 	}
 	
