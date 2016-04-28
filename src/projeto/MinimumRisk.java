@@ -16,12 +16,16 @@ public class MinimumRisk {
 
 	Ponto corner1, corner2, corner3, corner4;
 	
-	double factor = 1;
+	double factor = 1000;
+	double width, height;
+	double botMaxSize;
+	
 	
 	public MinimumRisk(AdvancedRobot r){
 		bot = r;
-		
-		double width = bot.getBattleFieldWidth(), height = bot.getBattleFieldHeight();
+		botMaxSize = Math.max(bot.getWidth(), bot.getHeight()) * 3; 
+		width = bot.getBattleFieldWidth();
+		height = bot.getBattleFieldHeight();
 		center = new Ponto(width/2, height/2);
 		corner1 = new Ponto(0, 0);
 		corner2 = new Ponto(width, 0);
@@ -32,7 +36,7 @@ public class MinimumRisk {
 		teammates = new ArrayList<Ponto>();
 		
 	}
-	
+	///////////////////////////////////////////////////////////
 	public void addEnemy(EnemyData e){
 		if(!enemies.contains(e))
 			enemies.add(e);
@@ -47,15 +51,16 @@ public class MinimumRisk {
 		if(!teammates.contains(pt))
 			teammates.add(pt);
 	}
+	//////////////////////////////////////////////////////////
 	
 	public double risk(Ponto pt){
 		double riskValue = 0;
-		// inversamente a dist pros inimigos e diretamente com energia
+/*		// inversamente a dist pros inimigos e diretamente com energia
 		for (EnemyData enemy : enemies){
-			riskValue += enemy.energy/enemy.relativeDistance(pt);
+			riskValue +=  enemy.energy/enemy.relativeDistance(pt);
 		}
 		// inversamente distancia pro centro 
-		riskValue += 1/pt.distance(center);
+		riskValue += 1/pt.distance(center); 
 
 		if(target != null){
 			// inversamente distancias pras linesights
@@ -64,15 +69,23 @@ public class MinimumRisk {
 			}
 		}
 		// inversamente a dist pras paredes
-		riskValue += 1/(pt.distanceToLine(corner1, corner2)*factor);
-		riskValue += 1/(pt.distanceToLine(corner1, corner3)*factor);
-		riskValue += 1/(pt.distanceToLine(corner2, corner4)*factor);
-		riskValue += 1/(pt.distanceToLine(corner3, corner4)*factor);
-		
+		//parede cima
+		riskValue += 1/(height - pt.getY());
+		//parede direita
+		riskValue += 1/(width - pt.getX());
+		//parede baixo
+		riskValue += 1/pt.getY();
+		//parede esquerda
+		riskValue += 1/pt.getX();
+*/
 		return riskValue; 
 	}
 	//////////////////////////////////qq
 		
+	public boolean inMap(Ponto p){
+		return (p.getX() < width - botMaxSize && p.getX() > botMaxSize) && (p.getY() < height-botMaxSize && p.getY() > botMaxSize);
+	}
+	
 		public int lowerRiskIndex(double[] Enemy) {
 			double menor = Enemy[0];
 			int index = 0;
@@ -85,29 +98,38 @@ public class MinimumRisk {
 			return index;
 		}
 		
+		
+		
 		public Ponto[] pontosRandom (Ponto eu) {
 			int raio = 100;
 			int raio2 = raio*raio;
-			int qtdPontos = 25;
+			int qtdPontos = 30;
 			Ponto[] vetorPoint = new Ponto[qtdPontos];
 			
+			int dir = 1;
 			for (int i = 0; i < qtdPontos; i++) {
 				
-				double x = eu.getX() - raio + new Random().nextInt(2*raio);
-				double y = eu.getY() + Math.sqrt(raio2 - (x - eu.getX())*(x - eu.getX()));
-						
-				vetorPoint[i] = new Ponto(x, y);
+				double x = eu.getX() - raio + new Random().nextInt(2*raio)*dir;
+				dir = -dir;
+				double raiz = Math.sqrt(raio2 - (x - eu.getX())*(x - eu.getX()));
+				double y = eu.getY() + raiz;
+				Ponto p = new Ponto(x, y);
+				if(inMap(p)){
+					vetorPoint[i]  = p;
+				}else{
+					vetorPoint[i]  = center;
+				}
 			}
 			
-			bot.out.println("pts: ");
+			//bot.out.println("pts: ");
+			//bot.out.println(bot.getX() + "; " + bot.getY());
 			
-			for(Ponto pt : vetorPoint){
-				bot.out.println(pt.getX() + ", " + pt.getY() );
-			}
+			//for(Ponto pt : vetorPoint){
+				//bot.out.println(pt.getX() + ", " + pt.getY() );
+			//}
 			
 			return vetorPoint;
-		}
-		
+		}		
 	////////////////////////////////////qqq
 	public void move(){
 		Ponto botPt = new Ponto(bot.getX(), bot.getY());
@@ -121,9 +143,19 @@ public class MinimumRisk {
 		
 		Ponto destino = pontos[lowerRiskIndex(risks)]; 
 		
-		bot.setTurnRadarRightRadians(botPt.relativeBearing(destino) - bot.getHeadingRadians());
+		bot.setTurnRightRadians(botPt.relativeBearing(destino) - bot.getHeadingRadians());
 		
 		bot.ahead(botPt.distance(destino));
+		
+		bot.out.println(destino.getX() +
+				",          " +destino.getY());
+		bot.out.println("bot: ");
+		bot.out.println(bot.getX() +
+				",          " +bot.getY());
+		
+		
+		//bot.out.println(bot.getTurnRemaining());
+		
 	}
 	 
 }

@@ -18,7 +18,7 @@ public class Leader extends TeamRobot {
 	RadarCtrl radar; 
 	MovementCtrl mvmt;
 	GFTargeting targeting;
-	//MinimumRisk minRisk;
+	MinimumRisk minRisk;
 		
 	boolean teamPlay;
 
@@ -34,7 +34,7 @@ public class Leader extends TeamRobot {
 		radar = new RadarCtrl(this);
 		mvmt = new MovementCtrl(this);
 		targeting = new GFTargeting(this);
-		//minRisk = new MinimumRisk(this);
+		minRisk = new MinimumRisk(this);
 		
 		teamPlay = (getTeammates() != null);
 				
@@ -52,8 +52,11 @@ public class Leader extends TeamRobot {
 			
 			execute();
 			if(getDistanceRemaining() <= 0.1){
-				//minRisk.move();
-				ahead(mvmt.getMovement());
+				minRisk.move();
+				//ahead(mvmt.getMovement());
+			}
+			else{
+				out.println(getDistanceRemaining());
 			}
 		}
 	}
@@ -63,19 +66,19 @@ public class Leader extends TeamRobot {
 	public void onScannedRobot(ScannedRobotEvent e) {
 		// Don't fire on teammates
 		if (isTeammate(e.getName())) {
-			//minRisk.addTeammate(new EnemyData(e, this));
+			minRisk.addTeammate(new EnemyData(e, this));
 			return;
 		}
 
 		if (e.getEnergy() > 150.0 && target == null) {
 			target = e.getName();// lider adversario
 			leader = e.getName();
-			//minRisk.setTarget(new EnemyData(e, this));
+			minRisk.setTarget(new EnemyData(e, this));
 		}
 
 		if (leaderDead && target == null){
 			target = e.getName();
-			//minRisk.setTarget(new EnemyData(e, this));
+			minRisk.setTarget(new EnemyData(e, this));
 		}
 		if (e.getName().equals(target) || !teamPlay) {
 			

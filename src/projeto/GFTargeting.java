@@ -94,7 +94,7 @@ public class GFTargeting {
 			else
 				bulletPower = Math.max(Rules.MAX_BULLET_POWER*(distanceRelativa)/diag, minBullet);			
 		}
-		bot.out.println(bulletPower);
+		//bot.out.println(bulletPower);
 	}	
 	
 	
