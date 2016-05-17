@@ -8,9 +8,9 @@ public class BulletWave {
 	private double startX, startY, startBearing, power;
 	private long   shotTime;
 	private int    direction;
-	private int[]  stats;
+	private double[]  stats;
 
-	public BulletWave(double x, double y, double bearing, double power,	int direction, long time, int[] segment){
+	public BulletWave(double x, double y, double bearing, double power,	int direction, long time, double[] segment){
 		shotPt = new Ponto(x,y);
 		startX = x;
 		startY = y;
@@ -62,6 +62,10 @@ public class BulletWave {
 		return false;
 	}
 	
+	public double factor(int i, int index){
+		return 1.0/(Math.abs((index-i))+1) + 0.25;
+	}
+	
 	public boolean checkHit(double enemyX, double enemyY, long currentTime){
 		// if the distance from the wave origin to our enemy has passed
 		// the distance the bullet would have traveled...
@@ -72,7 +76,13 @@ public class BulletWave {
 			double guessFactor =
 				Math.max(-1, Math.min(1, angleOffset / maxEscapeAngle())) * direction;
 			int index = (int) Math.round((stats.length - 1) /2 * (guessFactor + 1));
-			stats[index]++;
+			
+			int i1 = Math.max(0, index-3), i2 = Math.min(stats.length, index+3);
+			
+			for (int i = i1; i < i2; i++){
+				stats[i] += factor(i, index);
+			}
+			
 			return true;
 		}
 		return false;

@@ -158,7 +158,13 @@ public class MinimumRisk {
 		//bot.out.println(bot.getTurnRemaining());
 		*/
 	}
-	 
+	
+	public void movement(){
+		if(bot.getDistanceRemaining() <= 0.1){
+			move();	
+		}
+	}
+	
 	public void turnBot(EnemyData enemy){
 		// Calculate x and y to target
 		double dx = enemy.x - bot.getX();
@@ -174,6 +180,6 @@ public class MinimumRisk {
 	}
 	
 	public void increaseMovementFactor(){
-		movementFactor *= 2;
+		movementFactor *= 1.2;
 	}
 }

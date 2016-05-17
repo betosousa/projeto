@@ -1,59 +1,35 @@
 package projeto;
 
 import robocode.*;
-import robocode.util.Utils;
-
-//import java.io.IOException;
 
 public class MlkSarrante extends AdvancedRobot{
-	private double bulletPower = Rules.MAX_BULLET_POWER;
-	private boolean targetAcquired = false;
+	RadarCtrl radar;
+	MinimumRisk minRisk;
+	GFTargeting targeting;
 	
 	public void run(){
 		new RobotColors().setCRFColors(this);
-		setTurnRadarRight(Double.POSITIVE_INFINITY);
-		execute();
 		
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForGunTurn(true);
 		setAdjustRadarForRobotTurn(true);
 		
+		radar = new RadarCtrl(this);
+		minRisk = new MinimumRisk(this);
+		targeting = new GFTargeting(this);
 		
-		while (true) {
-			if(targetAcquired)
-				ahead(200);	
-			if(getRadarTurnRemaining() == 0){
-				setTurnRadarRight(Double.POSITIVE_INFINITY);
-				targetAcquired = false;
-			}
-			execute();
+		
+		while (true) {	
+			radar.checkRadar();
+			minRisk.movement();
 		}	
 	}
 	
 	public void onScannedRobot(ScannedRobotEvent e) {
-		// Radar code		
-		// angulo total do inimigo = agulo do robo + offset do inimigo;
-	    double absBearing = getHeadingRadians() + e.getBearingRadians();
-	    
-	    // angulo do inimigo pro radar
- 		double radarBearing = Utils.normalRelativeAngle(absBearing - getRadarHeadingRadians());
- 		// offset(tamanho do arco envolvendo inimigo), menor entre atan(qtd de pxls entre arco e centro do robo / distancia para o robo) e maximo scan 
- 		double extraTurn = Math.min( Math.atan( 36.0 / e.getDistance()), Rules.RADAR_TURN_RATE_RADIANS );
- 		// junta tudo
- 		radarBearing += (radarBearing < 0 ? -extraTurn : extraTurn);
-
- 	    setTurnRadarRightRadians(radarBearing);
-	    
-	    // angulo da projecao do mov linear 
-	    double linearBearing = absBearing + Math.asin(e.getVelocity() / Rules.getBulletSpeed(bulletPower) * Math.sin(e.getHeadingRadians() - absBearing));
-	    
-	    setTurnGunRightRadians(Utils.normalRelativeAngle(linearBearing - getGunHeadingRadians()));
-		setTurnRightRadians(Utils.normalRelativeAngle(linearBearing - getHeadingRadians()));
-	    if(getGunHeat() == 0 && Math.abs(getGunTurnRemaining()) < 2.0 ){
-	    	//energyManagement(e.getDistance(), e.getEnergy());
-	    	setFire(bulletPower);
-	    	targetAcquired = true;
-	    }
-		//ahead(e.getDistance());
+		EnemyData enemy = new EnemyData(e, this);
+		minRisk.addEnemy(enemy);
+		radar.widthLock(e.getBearingRadians(), e.getDistance());
+		targeting.aim(enemy);
+		minRisk.turnBot(enemy);
 	}	
 }

@@ -12,7 +12,7 @@ public class GFTargeting {
 			diag, closeRange;
 
 	ArrayList<BulletWave> bulletWaves = new ArrayList<BulletWave>();
-	static int[] stats = new int[31]; 
+	static double[] stats = new double[31]; 
 	int midIndex = (stats.length-1)/2;
 	int direction = 1;
 
@@ -94,7 +94,6 @@ public class GFTargeting {
 			else
 				bulletPower = Math.max(Rules.MAX_BULLET_POWER*(distanceRelativa)/diag, minBullet);			
 		}
-		//bot.out.println(bulletPower);
 	}	
 	
 	
@@ -117,19 +116,19 @@ public class GFTargeting {
 			else
 				direction = 1;
 		}
-		int[] currentStats = stats; // This seems silly, but I'm using it to show something else later
+		double[] currentStats = stats; // This seems silly, but I'm using it to show something else later
 
 		shootPower(enemyDistance);
 		
 		BulletWave newWave = new BulletWave(bot.getX(), bot.getY(), enemyBearing, bulletPower, direction, bot.getTime(), currentStats);
 
-		int bestindex = 15;	// initialize it to be in the middle, guessfactor 0.
-		for (int i=0; i<31; i++)
+		int bestindex = midIndex;	// initialize it to be in the middle, guessfactor 0.
+		for (int i=0; i<currentStats.length; i++)
 			if (currentStats[bestindex] < currentStats[i])
 				bestindex = i;
 
 		// this should do the opposite of the math in the WaveBullet:
-		double guessfactor = (double)(bestindex - (stats.length - 1) / 2) / ((stats.length - 1) / 2);
+		double guessfactor = (double)(bestindex - midIndex) / midIndex;
 		double angleOffset = direction * guessfactor * newWave.maxEscapeAngle();
 		double gunAdjust = Utils.normalRelativeAngle(enemyBearing - bot.getGunHeadingRadians() + angleOffset);
 		bot.setTurnGunRightRadians(gunAdjust);

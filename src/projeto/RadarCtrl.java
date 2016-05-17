@@ -22,4 +22,11 @@ public class RadarCtrl {
 
 		bot.setTurnRadarRightRadians(radarBearing);
 	}
+	
+	public void checkRadar(){
+		if(bot.getRadarTurnRemaining() == 0){
+			bot.setTurnRadarRightRadians(Double.POSITIVE_INFINITY);
+		}
+		bot.execute();
+	}
 }
