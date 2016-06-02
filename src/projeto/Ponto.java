@@ -18,7 +18,7 @@ public class Ponto implements Serializable {
 		this.x = pt.getX() + distance * Math.sin(bearing);
 		this.y = pt.getY() + distance * Math.cos(bearing);
 	}
-
+		
 	public double getX() {
 		return x;
 	}

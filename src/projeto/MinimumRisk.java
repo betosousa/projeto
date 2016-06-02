@@ -15,21 +15,33 @@ public class MinimumRisk {
 	Ponto center;
 	AdvancedRobot bot;
 	
-	double movementFactor = 300, direction = -1;
+	double movementFactor = 200, direction = -1;
 	Random random;
 	
 	Ponto corner1, corner2, corner3, corner4;
 	
-	double energyFactor = 3, wallFactor = 100000, centerFactor = 4*wallFactor, lineSightFactor = 2*centerFactor;
+	double energyFactor = 300, wallFactor, centerFactor, lineSightFactor;
 	double width, height;
 	double botMaxSize;
+	
+	double minX,maxX,minY,maxY;
 	
 	
 	public MinimumRisk(AdvancedRobot r){
 		bot = r;
-		botMaxSize = Math.max(bot.getWidth(), bot.getHeight()) * 3; 
+		botMaxSize = Math.max(bot.getWidth(), bot.getHeight()) * 5; 
 		width = bot.getBattleFieldWidth();
 		height = bot.getBattleFieldHeight();
+		
+		wallFactor = width/2;
+		centerFactor = wallFactor * Math.sqrt(2);
+		lineSightFactor = width * Math.sqrt(2);
+		
+		minX = botMaxSize;
+		minY = botMaxSize;
+		maxX = width - botMaxSize;
+		maxY = height - botMaxSize;
+		
 		center = new Ponto(width/2, height/2);
 		corner1 = new Ponto(0, 0);
 		corner2 = new Ponto(width, 0);
@@ -61,16 +73,16 @@ public class MinimumRisk {
 		double riskValue = 0;
 		// inversamente a dist pros inimigos e diretamente com energia
 		for (EnemyData enemy : enemies){
-			riskValue +=  energyFactor * enemy.energy;// - enemy.relativeDistance(bot); 
+			riskValue +=  enemy.energy / energyFactor;// - enemy.relativeDistance(bot); 
 		}
 		
 		// inversamente distancia pro centro
-		riskValue += centerFactor / pt.distance(center); 
+		riskValue += centerFactor / (pt.distance(center) + 1); 
 
 		if(target != null){
 			// inversamente distancias pras linesights
 			for (Ponto mate : teammates){
-				riskValue += lineSightFactor/pt.distanceToLine(mate, target);
+				riskValue += lineSightFactor / pt.distanceToLine(mate, target);
 			}
 		}
 		// inversamente a dist pras paredes
@@ -79,62 +91,78 @@ public class MinimumRisk {
 		//parede direita
 		riskValue += wallFactor/(width - pt.getX());
 		//parede baixo
-		riskValue += wallFactor/pt.getY();
+		riskValue += wallFactor / pt.getY();
 		//parede esquerda
-		riskValue += wallFactor/pt.getX();
+		riskValue += wallFactor / pt.getX();
 
 		return riskValue; 
 	}
 	//////////////////////////////////qq
 		
 	public boolean inMap(Ponto p){
-		return (p.getX() < width - botMaxSize && p.getX() > botMaxSize) && (p.getY() < height-botMaxSize && p.getY() > botMaxSize);
+		return (p.getX() < maxX && p.getX() > minX) && (p.getY() < maxY && p.getY() > minY);
 	}
 	///*
-		public int lowerRiskIndex(double[] Enemy) {
-			double menor = Enemy[0];
-			int index = 0;
-			for (int i = 1; i < Enemy.length; i++) {
-				if (Enemy[i] < menor) {
-					menor = Enemy[i];
-					index = i;
-				}
+	public int lowerRiskIndex(double[] Enemy) {
+		double menor = Enemy[0];
+		int index = 0;
+		for (int i = 1; i < Enemy.length; i++) {
+			if (Enemy[i] < menor) {
+				menor = Enemy[i];
+				index = i;
 			}
-			return index;
 		}
-		
-		
-		///*
-		public Ponto[] pontosRandom (Ponto eu) {
-			int raio = 100;
-			int raio2 = raio*raio;
-			int qtdPontos = 30;
-			Ponto[] vetorPoint = new Ponto[qtdPontos];
-			
-			for (int i = 0; i < qtdPontos; i++) {
-				int rand = new Random().nextInt(2*raio);
-				double x = eu.getX() - raio + rand;
-				bot.out.println(rand);
-				double raiz = Math.sqrt(raio2 - (x - eu.getX())*(x - eu.getX()));
-				double y = eu.getY() + raiz;
-				Ponto p = new Ponto(x, y);
-				if(inMap(p)){
-					vetorPoint[i]  = center;
-				}else{
-					vetorPoint[i]  = center;
-				}
+		return index;
+	}
+
+
+	///*
+	public Ponto[] pontosRandom (Ponto eu) {
+		int raio = 100;
+		int raio2 = raio*raio;
+		int qtdPontos = 30;
+		Ponto[] vetorPoint = new Ponto[qtdPontos];
+
+		for (int i = 0; i < qtdPontos; i++) {
+			int rand = new Random().nextInt(2*raio);
+			double x = eu.getX() - raio + rand;
+			bot.out.println(rand);
+			double raiz = Math.sqrt(raio2 - (x - eu.getX())*(x - eu.getX()));
+			double y = eu.getY() + raiz;
+			Ponto p = new Ponto(x, y);
+			if(inMap(p)){
+				vetorPoint[i]  = center;
+			}else{
+				vetorPoint[i]  = center;
 			}
-			
-			return vetorPoint;
 		}
+
+		return vetorPoint;
+	}
+	
+	public double clamp(double x, double min, double max){
+		return  Math.max(min, Math.min(x, max) );
+	}
+	
+	public Ponto toMap(Ponto p){
+		return new Ponto( clamp(p.getX(), minX, maxX), clamp(p.getY(), minY, maxY));
+	}
+	
+	
 		//*/		
 	////////////////////////////////////qqq
 	public void move(){
-		
 		Ponto botPt = new Ponto(bot.getX(), bot.getY());
+
 		double r1 = getRandomMovementDistance(), r2 = getRandomMovementDistance();
-		
-		Ponto p1 = new Ponto(bot.getHeadingRadians(), botPt, r1), p2 = new Ponto(bot.getHeadingRadians()+Math.PI, botPt, r2);
+		Ponto p1 = new Ponto(bot.getHeadingRadians(), botPt, r1);
+		if(!inMap(p1)){
+			p1 = toMap(p1);
+		}
+		Ponto p2 = new Ponto(bot.getHeadingRadians()+Math.PI, botPt, r2);
+		if(!inMap(p2)){
+			p2 = toMap(p2);
+		}
 		
 		double moveDirection = (risk(p1) < risk(p2)) ? r1 : r2;
 		
@@ -179,7 +207,7 @@ public class MinimumRisk {
 		return random.nextDouble() * movementFactor * direction;	
 	}
 	
-	public void increaseMovementFactor(){
-		movementFactor *= 1.2;
+	public void changeMovementFactor(){
+		movementFactor = 20;
 	}
 }

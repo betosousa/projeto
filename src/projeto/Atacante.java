@@ -61,7 +61,7 @@ public class Atacante extends TeamRobot implements Droid {
 	public void onRobotDeath(RobotDeathEvent e) {
 		if(e.getName().equals(leader)){
 			setBodyColor(Color.yellow);
-			minRisk.increaseMovementFactor();
+			minRisk.changeMovementFactor();
 		}
 	}
 	
