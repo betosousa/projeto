@@ -2,6 +2,7 @@ package boladoNaoConta;
 
 import robocode.*;
 
+import java.awt.Color;
 import java.io.IOException;
 
 
@@ -25,7 +26,7 @@ public class Leader extends TeamRobot {
 		// Prepare RobotColors object
 		RobotColors c = new RobotColors();
 		c.setCRFColors(this);
-		
+		setRadarColor(Color.red);
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForGunTurn(true);
 		setAdjustRadarForRobotTurn(true);
