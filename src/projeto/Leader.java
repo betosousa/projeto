@@ -44,6 +44,9 @@ public class Leader extends TeamRobot {
 		}
 		// Normal behavior
 		while (true) {
+			try {
+				broadcastMessage(new Ponto(getX(), getY()));
+			} catch (IOException ignored) {}
 			
 			if(getRadarTurnRemaining() == 0)
 				setTurnRadarRight(1000);
@@ -56,6 +59,8 @@ public class Leader extends TeamRobot {
 			else{
 				out.println(getDistanceRemaining());
 			}
+			
+			minRisk.clearLists();
 		}
 	}
 
@@ -106,6 +111,12 @@ public class Leader extends TeamRobot {
 		return bulletPower;
 	}
 	
+	
+	public void onMessageReceived(MessageEvent e) {
+		if(e.getMessage() instanceof Ponto){
+			minRisk.addTeammate((Ponto) e.getMessage());
+		}
+	}
 	
 	public void onRobotDeath(RobotDeathEvent e) {
 		if (leaderDead) {

@@ -2,6 +2,7 @@ package projeto;
 
 
 import java.awt.Color;
+import java.io.IOException;
 
 import robocode.Droid;
 import robocode.MessageEvent;
@@ -29,9 +30,16 @@ public class Atacante extends TeamRobot implements Droid {
 		minRisk = new MinimumRisk(this);
 		
 		while(true){
+			try{
+				broadcastMessage(new Ponto(getX(), getY()));
+			} catch (IOException ex1) {
+				out.println("Unable to send order: ");
+				ex1.printStackTrace(out);
+			}
 			if(getDistanceRemaining() <= 0.1){
 				minRisk.move();
 			}
+			minRisk.clearLists();
 		}
 		
 	}
@@ -54,14 +62,18 @@ public class Atacante extends TeamRobot implements Droid {
 		}
 		else if(e.getMessage() instanceof String){
 			leader = (String) e.getMessage();
+		}else if(e.getMessage() instanceof Ponto){
+			minRisk.addTeammate((Ponto) e.getMessage());
 		}
+		
+		
 	}
 	
 	
 	public void onRobotDeath(RobotDeathEvent e) {
 		if(e.getName().equals(leader)){
 			setBodyColor(Color.yellow);
-			minRisk.changeMovementFactor();
+			//minRisk.changeMovementFactor();
 		}
 	}
 	

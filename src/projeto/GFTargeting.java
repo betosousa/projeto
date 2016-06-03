@@ -84,7 +84,6 @@ public class GFTargeting {
 	}
 
 	public void shootPower(double distance) {
-		
 		if (distance < closeRange) {
 			bulletPower = Rules.MAX_BULLET_POWER;
 		} else {
@@ -133,7 +132,7 @@ public class GFTargeting {
 		double gunAdjust = Utils.normalRelativeAngle(enemyBearing - bot.getGunHeadingRadians() + angleOffset);
 		bot.setTurnGunRightRadians(gunAdjust);
 
-		if (bot.getGunHeat() == 0 && gunAdjust < Math.atan2(9, enemyDistance) && bot.setFireBullet(bulletPower) != null) {
+		if ( ((( bot.getEnergy() > 0.5 )))  &&  bot.getGunHeat() == 0 && gunAdjust < Math.atan2(9, enemyDistance) && bot.setFireBullet(bulletPower) != null) {
 			bulletWaves.add(newWave);
 		}
 
