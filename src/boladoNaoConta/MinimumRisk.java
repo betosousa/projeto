@@ -1,15 +1,16 @@
-package projeto;
+package boladoNaoConta;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Vector;
 
 import robocode.AdvancedRobot;
 import robocode.util.Utils;
 
 public class MinimumRisk {
 
-	ArrayList<EnemyData> enemies;
-	ArrayList<Ponto> teammates;
+	Vector<EnemyData> enemies;
+	Vector<Ponto> teammates;
 	
 	Ponto target;
 	Ponto center;
@@ -29,7 +30,7 @@ public class MinimumRisk {
 	
 	public MinimumRisk(AdvancedRobot r){
 		bot = r;
-		botMaxSize = 5.0 * Math.max(bot.getWidth(), bot.getHeight()); 
+		botMaxSize = 2 * Math.max(bot.getWidth(), bot.getHeight()); 
 		width = bot.getBattleFieldWidth();
 		height = bot.getBattleFieldHeight();
 		
@@ -48,8 +49,8 @@ public class MinimumRisk {
 		corner3 = new Ponto(0, height);
 		corner4 = new Ponto(width, height);
 		
-		enemies = new ArrayList<EnemyData>();
-		teammates = new ArrayList<Ponto>();
+		enemies = new Vector<EnemyData>();
+		teammates = new Vector<Ponto>();
 		random = new Random();
 	}
 	///////////////////////////////////////////////////////////
@@ -67,7 +68,8 @@ public class MinimumRisk {
 	}
 	
 	public void addTeammate(Ponto pt){
-		if((teammates.isEmpty()) && !teammates.contains(pt))
+		if(pt!=null)
+		if(!teammates.contains(pt))
 			teammates.add(pt);
 	}
 	
@@ -91,9 +93,15 @@ public class MinimumRisk {
 		if(target != null){
 			// inversamente distancias pras linesights
 			for (Ponto mate : teammates){
-				riskValue += lineSightFactor / pt.distanceToLine(mate, target);
+				riskValue += 10000*lineSightFactor / pt.distanceToLine(mate, target);
 			}
 		}
+		
+		for (Ponto mate : teammates){
+			System.out.println("caraii");
+			riskValue += 1e222*lineSightFactor / pt.distance(mate);
+		}
+		
 		// inversamente a dist pras paredes
 		//parede cima
 		riskValue += wallNm * wallFactor/(height - pt.getY());
@@ -154,7 +162,8 @@ public class MinimumRisk {
 	}
 	
 	public Ponto toMap(Ponto p){
-		return new Ponto( clamp(p.getX(), minX, maxX), clamp(p.getY(), minY, maxY));
+		return center;
+		//return new Ponto( clamp(p.getX(), minX, maxX), clamp(p.getY(), minY, maxY));
 	}
 	
 	
@@ -162,39 +171,50 @@ public class MinimumRisk {
 	////////////////////////////////////qqq
 	public void move(){
 		//*
+		//Ponto dest;
 		Ponto botPt = new Ponto(bot.getX(), bot.getY());
-
-		double r1 = getRandomMovementDistance(), r2 = getRandomMovementDistance();
-		Ponto p1 = new Ponto(bot.getHeadingRadians(), botPt, r1);
-//		double turn = 0;
+		//
+		if(inMap(botPt)){
+			/*
+			Ponto[] pontos = pontosRandom(botPt);
+			
+			double[] risks = new double[pontos.length];
+			
+			for (int i = 0; i < risks.length; i++){
+				risks[i] = risk(pontos[i]);
+			}
+			
+			dest = pontos[lowerRiskIndex(risks)]; 
 		
-		if(!inMap(p1)){
-			p1 = toMap(p1);
-			r1 = botPt.distance(p1);
-	//		turn = Utils.normalRelativeAngle(botPt.relativeBearing(p1)  - bot.getHeadingRadians() );
+			/*/
+			double r1 = getRandomMovementDistance(), r2 = -r1;//getRandomMovementDistance();
+			Ponto p1 = new Ponto(bot.getHeadingRadians(), botPt, r1);
+			Ponto p2 = new Ponto(bot.getHeadingRadians()+Math.PI, botPt, r2);
+			/*
+			if(!inMap(p1)){
+				p1 = toMap(p1);
+			}
+			
+			if(!inMap(p2)){
+				p2 = toMap(p2);
+			}
+			*/
+			double movePt = (risk(p1) <= risk(p2)) ? r1 : r2;
+			
+			bot.setAhead(movePt);
+			
+			//dest = movePt;
+			//*/
+			//goTo(movePt);//, botPt);
+			//*
+		}else{
+			goTo(center);//, botPt);
+			//dest = center;
 		}
-		Ponto p2 = new Ponto(bot.getHeadingRadians()+Math.PI, botPt, r2);
-		if(!inMap(p2)){
-			p2 = toMap(p2);
-			r2 = -botPt.distance(p2);
-		//	turn = Utils.normalRelativeAngle(botPt.relativeBearing(p2) -  bot.getHeadingRadians());
-		}
-		
-		//double moveDirection = (risk(p1) < risk(p2)) ? r1 : r2;
-		
-		Ponto movePt = (risk(p1) < risk(p2)) ? p1 : p2;
-		
-		double a;
-		int x = (int) movePt.getX(), y = (int) movePt.getY();
-		bot.setTurnRightRadians(Math.tan(
-				a = Math.atan2(x -= (int) bot.getX(), y -= (int) bot.getY()) 
-				- bot.getHeadingRadians()));
-		bot.setAhead(Math.hypot(x, y) * Math.cos(a));
-
-		//bot.ahead(moveDirection);
-		//bot.setTurnRightRadians(turn);
-		/*
-		
+		//return dest;
+		/*/
+			/*
+			
 		Ponto botPt = new Ponto(bot.getX(), bot.getY());
 		Ponto[] pontos = pontosRandom(botPt);
 		
@@ -212,6 +232,42 @@ public class MinimumRisk {
 		//bot.out.println(bot.getTurnRemaining());
 		//*/
 	}
+	
+	public void goTo(Ponto pt) {
+	    int x = (int) pt.getX(), y = (int) pt.getY(); 
+		double a;
+	    bot.setTurnRightRadians(Math.tan(
+	        a = Math.atan2(x -= (int) bot.getX(), y -= (int) bot.getY()) 
+	              - bot.getHeadingRadians()));
+	    bot.setAhead(Math.hypot(x, y) * Math.cos(a));
+	}
+	
+	void gofghjTo(Ponto pt, Ponto botPt){
+		double dist =  pt.distance(botPt);//( -Math.signum(bot.getVelocity()) + 0.01 ) *
+		double turn = angle(pt);
+		if(turn > Math.PI/2){
+			turn = -(turn - Math.PI/2); 
+			dist = -dist;
+		}
+		bot.setTurnRightRadians(turn);
+		bot.setAhead(-dist);
+		System.out.println(dist + ", " + turn);
+	}
+	
+	double angle(Ponto pt){
+		double x = bot.getX(), y = bot.getY();
+		
+		x -= pt.getX();
+		y -= pt.getY();
+		double theta = Math.atan2(x, y);
+		if(theta < 0){
+			theta += 2*Math.PI;
+		}
+		
+		return theta - bot.getHeadingRadians();
+		
+	}
+	
 	
 	public void movement(){
 		if(bot.getDistanceRemaining() <= 0.1){

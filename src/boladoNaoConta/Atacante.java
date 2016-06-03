@@ -1,4 +1,4 @@
-package projeto;
+package boladoNaoConta;
 
 
 import java.awt.Color;
@@ -12,6 +12,7 @@ import robocode.TeamRobot;
 public class Atacante extends TeamRobot implements Droid {
 
 	private String leader;
+	Ponto center;
 	
 	/**
 	 * run:  Droid's default behavior
@@ -21,14 +22,14 @@ public class Atacante extends TeamRobot implements Droid {
 	MinimumRisk minRisk;
 	
 	public void run() {
-		
+		center  = new Ponto(getBattleFieldWidth()/2, getBattleFieldHeight()/2);
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForGunTurn(true);
 		setAdjustRadarForRobotTurn(true);
 		
 		targeting = new GFTargeting(this);
 		minRisk = new MinimumRisk(this);
-		
+		int cooldown = 0;
 		while(true){
 			try{
 				broadcastMessage(new Ponto(getX(), getY()));
@@ -36,10 +37,19 @@ public class Atacante extends TeamRobot implements Droid {
 				out.println("Unable to send order: ");
 				ex1.printStackTrace(out);
 			}
-			if(getDistanceRemaining() <= 0.1){
+			if(getDistanceRemaining() <= 0.1) {
 				minRisk.move();
 			}
-			minRisk.clearLists();
+			
+			if ( !minRisk.inMap(new Ponto(getX(), getY())) || cooldown > 0){
+				minRisk.goTo(center);
+				cooldown++;
+				if(cooldown==25)
+					cooldown = 0;
+			}
+			//minRisk.clearLists();
+			//minRisk.goTo(dest);
+			execute();
 		}
 		
 	}

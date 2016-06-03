@@ -1,4 +1,4 @@
-package projeto;
+package boladoNaoConta;
 
 import robocode.*;
 
@@ -14,7 +14,7 @@ import java.io.IOException;
 public class Leader extends TeamRobot {
 	private String target = null, leader = null;
 	private boolean leaderDead = false;
-	
+	Ponto center;
 	RadarCtrl radar; 
 	GFTargeting targeting;
 	MinimumRisk minRisk;
@@ -30,6 +30,8 @@ public class Leader extends TeamRobot {
 		setAdjustRadarForGunTurn(true);
 		setAdjustRadarForRobotTurn(true);
 		
+		center  = new Ponto(getBattleFieldWidth()/2, getBattleFieldHeight()/2);
+		
 		radar = new RadarCtrl(this);
 		targeting = new GFTargeting(this);
 		minRisk = new MinimumRisk(this);
@@ -42,6 +44,8 @@ public class Leader extends TeamRobot {
 			broadcastMessage(getName());
 		} catch (IOException ignored) {
 		}
+		
+		int cooldown = 0;
 		// Normal behavior
 		while (true) {
 			try {
@@ -51,16 +55,23 @@ public class Leader extends TeamRobot {
 			if(getRadarTurnRemaining() == 0)
 				setTurnRadarRight(1000);
 			
-			execute();
 			if(getDistanceRemaining() <= 0.1){
-				minRisk.move();
-				
+				 minRisk.move();
 			}
 			else{
 				out.println(getDistanceRemaining());
 			}
 			
-			minRisk.clearLists();
+			if ( !minRisk.inMap(new Ponto(getX(), getY())) || cooldown > 0){
+				minRisk.goTo(center);
+				cooldown++;
+				if(cooldown==25)
+					cooldown = 0;
+			}
+			
+			//minRisk.clearLists();
+			
+			execute();
 		}
 	}
 
